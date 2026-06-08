@@ -220,52 +220,26 @@ plot_curves(temps, lf.WN02.inf.curves, col="darkgreen")
 plot_curves(temps, lf.NY10.inf.curves, col="darkblue")
 
 
-### Additional trait fits used in R0 calculations.
+### Additional Shocket et al. trait fits used in R0 calculations.
+# These RDS files contain posterior draws for the fitted trait parameters only
+# (cf.T0, cf.Tm, cf.q), rather than the full original JAGS objects.
 
-idx_trait <- round(seq(1, 80000, 80000/ 50000))
-idx_trait
-load(paste(shocket_traits_dir, "jagsout_a_Cpip_inf.Rdata", sep=""))
-aG.chains <- MCMCchains(a.Cpip.out.inf, params=c("cf.T0", "cf.Tm", "cf.q"))[]
-aG.chains
+aG.chains <- readRDS(file.path(shocket_traits_dir, "aG_params.RDS"))
+EFOC.chains <- readRDS(file.path(shocket_traits_dir, "EFOC_params.RDS"))
+EV.chains <- readRDS(file.path(shocket_traits_dir, "EV_params.RDS"))
+MDR.chains <- readRDS(file.path(shocket_traits_dir, "MDR_params.RDS"))
+PDR.chains <- readRDS(file.path(shocket_traits_dir, "PDR_params.RDS"))
+pLA.chains <- readRDS(file.path(shocket_traits_dir, "pLA_params.RDS"))
 
-aG.curves <-  apply(aG.chains[idx_trait, ], 1, function(x) briere(temps, x[1], x[2], x[3]))
+# Indices of Shocket et al. posterior draws to use for R0 calculations.
+idx_trait <- round(seq(1, nrow(aG.chains), length.out = length(idx)))
 
-load(paste(shocket_traits_dir, "jagsout_EFOC_Cpip_inf.Rdata", sep=""))
-EFOC.chains <- MCMCchains(EFOC.Cpip.out.inf, params=c("cf.T0", "cf.Tm", "cf.q"))
+aG.curves <- apply(aG.chains[idx_trait, ], 1, function(x) briere(temps, x[1], x[2], x[3]))
 EFOC.curves <- apply(EFOC.chains[idx_trait, ], 1, function(x) quad(temps, x[1], x[2], x[3]))
-
-load(paste(shocket_traits_dir, "jagsout_EV_Cpip_inf.Rdata", sep=""))
-EV.chains <- MCMCchains(EV.Cpip.out.inf, params=c("cf.T0", "cf.Tm", "cf.q"))
 EV.curves <- apply(EV.chains[idx_trait, ], 1, function(x) quad_lim(temps, x[1], x[2], x[3]))
-
-load(paste(shocket_traits_dir, "jagsout_MDR_Cpip_inf.Rdata", sep=""))
-MDR.chains <- MCMCchains(MDR.Cpip.out.inf, params=c("cf.T0", "cf.Tm", "cf.q"))
 MDR.curves <- apply(MDR.chains[idx_trait, ], 1, function(x) briere(temps, x[1], x[2], x[3]))
-
-load(paste(shocket_traits_dir, "jagsout_PDR_CpipWNV_inf.Rdata", sep=""))
-PDR.chains <- MCMCchains(PDR.CpipWNV.out.inf, params=c("cf.T0", "cf.Tm", "cf.q"))
 PDR.curves <- apply(PDR.chains[idx_trait, ], 1, function(x) briere(temps, x[1], x[2], x[3]))
-
-load(paste(shocket_traits_dir, "jagsout_pLA_Cpip_inf.Rdata", sep=""))
-pLA.chains <- MCMCchains(pLA.Cpip.out.inf, params=c("cf.T0", "cf.Tm", "cf.q"))
 pLA.curves <- apply(pLA.chains[idx_trait, ], 1, function(x) quad_lim(temps, x[1], x[2], x[3]))
-
-str(pLA.curves)
-
-# Thin bc curves to make same size as others.
-#split_func <- function(x, by) {
-#  r <- diff(range(x))
-#  out <- seq(0, r - by - 1, by = by)
-#  c(round(min(x) + c(0, out - 0.51 + (max(x) - max(out)) / 2), 0), max(x))
-#}
-
-#idx <- split_func(1:200000, 200000 / 75000)[2:75001]
-#str(idx)
-#str(bc.WN02.curves)
-#bc.WN02.curves <- bc.WN02.curves[ , idx]
-#bc.NY10.curves <- bc.NY10.curves[ , idx]
-
-#str(bc.WN02.curves)
 
 #### R0 calculations
 
