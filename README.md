@@ -8,3 +8,4 @@ Fay, RL et al. *Mosquito infection-mediated trait variation alters temperature-d
 
 - `data/` — input data used in the analyses.
 - `code/` — R scripts used for data processing, model fitting, and figure generation.
+- `shocket_fits` - posterior parameter draws from TPC models from Shocket et al., used in the relative R0 analyses for traits not measured in this work.
